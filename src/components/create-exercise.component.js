@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css'
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default class CreateExercise extends Component {
   constructor(props) {
     super(props);
 
     this.onChangeUsername = this.onChangeUsername.bind(this);
-    this.onChangeDescriptoin = this.onChangeDescriptoin.bind(this);
+    this.onChangeDescription = this.onChangeDescription.bind(this);
     this.onChangeDuration = this.onChangeDuration.bind(this);
     this.onChangeDate = this.onChangeDate.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -22,10 +23,14 @@ export default class CreateExercise extends Component {
   }
 
   componentDidMount() {
-    this.setState({
-      users: ['test user'],
-      username: 'test user'
-    });
+    axios.get('http://localhost:5000/users/')
+      .then(res => {
+        (res.data.length > 0) && this.setState({
+          users: res.data.map(user => user.username),
+          username: res.data[0].username
+        });
+      })
+      .catch((err) => { console.log('Error: ' + err) });
   }
 
   onChangeUsername(e) {
@@ -34,7 +39,7 @@ export default class CreateExercise extends Component {
     });
   }
 
-  onChangeDescriptoin(e) {
+  onChangeDescription(e) {
     this.setState({
       description: e.target.value
     });
@@ -63,6 +68,9 @@ export default class CreateExercise extends Component {
     }
 
     console.log(exercise);
+
+    axios.post('http://localhost:5000/exercises/add/', exercise)
+      .then(res => console.log(res.data));
 
     window.location = '/';
   }
@@ -98,7 +106,7 @@ export default class CreateExercise extends Component {
                 type="text" 
                 required
                 className="form-control"
-                defaultValue={this.state.description}
+                value={this.state.description}
                 onChange={this.onChangeDescription}
                 />
           </div>
